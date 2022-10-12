@@ -12,11 +12,7 @@ on:
         env:
             description: 'Image Target Env'     
             required: true
-            default: 'exp'
-        subdir:
-            description: 'Sub Direcctory for Partial/context aware Build (like ./app/SearchApi)'     
-            required: true
-            default: './app'
+            default: 'dev'
         imagename:
             description: 'Imagename (like search-api)'     
             required: true
@@ -37,7 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       env: ${{github.event.inputs.env}}
-      subdir: ${{github.event.inputs.subdir}}
       app: ${{github.event.inputs.app}}
       imagename: ${{github.event.inputs.imagename}}
       tag: ${{github.event.inputs.tag}}
@@ -51,7 +46,6 @@ jobs:
         run: |
           echo "Release Environment: ${{ env.env }}"
           echo "Release App: ${{ env.app }}"
-          echo "Release Subdir: ${{ env.subdir }}"
 
       - name: Login to OpenShift Container Repository
         uses: docker/login-action@v1
@@ -85,3 +79,7 @@ jobs:
               WORKDIR=/opt/app-root/src
               DOTNET_INCREMENTAL=true
               DOTNET_RESTORE_CONFIGFILE=./NuGet.config
+	            #NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
+	            #NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
+              NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
+              NEXUS_REPO_URI=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
