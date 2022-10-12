@@ -9,6 +9,7 @@ on:
           - -Select-
           - search-api
           - request-api
+          - dynadapter
           required: true
         tag:
             description: 'Target image tag to build and deploy'     
