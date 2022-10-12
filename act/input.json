@@ -1,0 +1,7 @@
+{
+  "inputs": {
+    "app":"search-api",
+    "imagename":"search-api-expt",
+    "tag":"exptag"
+  }
+}
