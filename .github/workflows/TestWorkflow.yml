@@ -63,10 +63,10 @@ jobs:
         uses: redhat-actions/s2i-build@v2
         with:
           path_context: ./app
-          builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom"
+          builder_image:  image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
           image: ${{ env.imagename}}
           tags: ${{ env.tag }}
-          env_vars: |
+          env_vars:
             DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
             DOTNET_CONFIGURATION=Release
             DOTNET_PACK=true
