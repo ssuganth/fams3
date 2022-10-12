@@ -42,7 +42,7 @@ jobs:
           echo "Release Environment: Dev"
           echo "Release App: ${{ env.app }}"
           echo "Release Image: ${{ env.imagename }}"
-          echo "Release Tag: ${{ env.tag }}""
+          echo "Release Tag: ${{ env.tag }}"
 
       - name: Login to OpenShift Container Repository
         uses: docker/login-action@v1
