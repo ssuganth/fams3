@@ -10,25 +10,27 @@ on:
           - search-api
           - request-api
           required: true
-        imagename:
-            description: 'Imagename to deploy'     
-            required: true
-            default: 'search-api-expt'
         tag:
             description: 'Target image tag to build and deploy'     
             required: true
             default: 'exptag'
+        env:
+            description: 'Image Target Env'  
+            required: true
+            default: 'dev'
       
 jobs:
-  build-push-image-searchapi:
-    name: build-push-image-searchapi
+  build-push-image:
+    name: build-push-image
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
     env: 
       app: ${{github.event.inputs.app}}
-      imagename: ${{github.event.inputs.imagename}}
       tag: ${{github.event.inputs.tag}}
+      targetenv: ${{ github.event.inputs.env }}
+
     steps:
-      - name: Checkoutcode
+      - name: Checkout Code
         uses: actions/checkout@v2
         with:
           path: .
@@ -42,15 +44,15 @@ jobs:
             jq -r .ProjectMapping.\"${appname}\" ./projectpathmapping.json
           )
 
-      - name: print env variables
+      - name: Print Env Variables
         env:
           PROJECT_PATH: ${{ steps.fetch_projectpath.outputs.PATH }}
         run: |
           echo "Release Environment: Dev"
           echo "Release App: ${{ env.app }}"
           echo "Project Build Path: ${PROJECT_PATH}"
-          echo "Release Image: ${{ env.imagename }}"
           echo "Release Tag: ${{ env.tag }}"
+          echo "Release Env: ${{ env.targetenv }}"
 
       - name: Login to OpenShift Container Repository
         uses: docker/login-action@v1
@@ -59,18 +61,18 @@ jobs:
           username: ssuganth77
           password: sha256~RqecbRJ97AmtKenINr-1cg0gDDFVrUFsyWNTXq7rFg4
       
-      - name: Pull Image from OpenShift Container Repository
+      - name: Pull Builder Image from OpenShift Container Repository
         env:
           IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
         run: docker pull ${IMAGE}
 
-      - name: Build Image using S2I
+      - name: Build Application Image using S2I
         id: build_image
         uses: redhat-actions/s2i-build@v2
         with:
             path_context: ./app
             builder_image:  ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
-            image: ${{ env.imagename}}
+            image: ${{ env.app}}
             tags: ${{ env.tag }}
             env_vars: |
               DOTNET_STARTUP_PROJECT=${{ steps.fetch_projectpath.outputs.PATH }}
@@ -83,10 +85,10 @@ jobs:
               NEXUS_REPO_PASSWORD=${{ secrets.NEXUS_REPO_PASSWORD }}
               NEXUS_REPO_URL=${{ secrets.NEXUS_URL }}
       
-      - name: Push Image to Openshift ImageStream & Deploy to Dev
+      - name: Push Application Image to Openshift ImageStream & Deploy to Dev
         env:
-          SOURCE_IMAGE: ${{ env.imagename}}:${{ env.tag }}
-          TARGET_IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.imagename}}:${{ env.tag }}
+          SOURCE_IMAGE: ${{ env.app}}:${{ env.tag }}
+          TARGET_IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.app}}:${{ env.tag }}
         run: |
           docker tag ${SOURCE_IMAGE} ${TARGET_IMAGE}
           docker push ${TARGET_IMAGE}
