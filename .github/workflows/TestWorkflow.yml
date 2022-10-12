@@ -75,7 +75,7 @@ jobs:
             image: ${{ env.imagename}}
             tags: ${{ env.tag }}
             env_vars: |
-              DOTNET_STARTUP_PROJECT=${PROJECT_PATH}   
+              DOTNET_STARTUP_PROJECT="${PROJECT_PATH}"
               DOTNET_CONFIGURATION=Release
               DOTNET_PACK=true
               WORKDIR=/opt/app-root/src
