@@ -8,6 +8,7 @@ on:
           options:
           - -Select-
           - search-api
+          - request-api
           required: true
         imagename:
             description: 'Imagename to deploy'     
@@ -17,10 +18,6 @@ on:
             description: 'Target image tag to build and deploy'     
             required: true
             default: 'exptag'
-        startup_project:
-            description: 'Project for Dotnet Core MSBuild '   
-            required: true
-            default: 'SearchApi/SearchApi.Web/SearchApi.Web.csproj'
       
 jobs:
   build-push-image-searchapi:
@@ -30,17 +27,28 @@ jobs:
       app: ${{github.event.inputs.app}}
       imagename: ${{github.event.inputs.imagename}}
       tag: ${{github.event.inputs.tag}}
-      startup_project: ${{github.event.inputs.startup_project}}
     steps:
       - name: Checkoutcode
         uses: actions/checkout@v2
         with:
           path: .
+      
+      - name: Fetch Project Path
+        id: fetch_projectpath
+        env:
+          appname: ${{ env.app }}
+        run: >-
+          echo "::set-output name=PATH::$(
+            jq .ProjectMapping.\"${appname}\" ./projectpathmapping.json
+          )"
 
       - name: print env variables
+        env:
+          PROJECT_PATH: ${{ steps.fetch_projectpath.outputs.PATH }}
         run: |
           echo "Release Environment: Dev"
           echo "Release App: ${{ env.app }}"
+          echo "Project Build Path: ${PROJECT_PATH}"
           echo "Release Image: ${{ env.imagename }}"
           echo "Release Tag: ${{ env.tag }}"
 
@@ -59,13 +67,15 @@ jobs:
       - name: Build Image using S2I
         id: build_image
         uses: redhat-actions/s2i-build@v2
+        env:
+          PROJECT_PATH: ${{ steps.fetch_projectpath.outputs.PATH }}
         with:
             path_context: ./app
             builder_image:  ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
             image: ${{ env.imagename}}
             tags: ${{ env.tag }}
             env_vars: |
-              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
+              DOTNET_STARTUP_PROJECT=${PROJECT_PATH}   
               DOTNET_CONFIGURATION=Release
               DOTNET_PACK=true
               WORKDIR=/opt/app-root/src
