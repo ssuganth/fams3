@@ -14,15 +14,15 @@ on:
             required: true
             default: 'dev'
         imagename:
-            description: 'Imagename (like search-api)'     
+            description: 'Imagename to deploy'     
             required: true
             default: 'search-api-expt'
         tag:
-            description: 'tag (like dev)'     
+            description: 'Target image tag to build and deploy'     
             required: true
             default: 'exptag'
         startup_project:
-            description: 'Project for MSBuild like app/SearchApi/SearchApi.Web/SearchApi.Web.csproj'     
+            description: 'Project for Dotnet Core MSBuild ''   
             required: true
             default: 'SearchApi/SearchApi.Web/SearchApi.Web.csproj'
       
@@ -50,23 +50,23 @@ jobs:
       - name: Login to OpenShift Container Repository
         uses: docker/login-action@v1
         with:
-          registry: image-registry.apps.silver.devops.gov.bc.ca
+          registry: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}
           username: ssuganth77
           password: sha256~RqecbRJ97AmtKenINr-1cg0gDDFVrUFsyWNTXq7rFg4
       
       - name: Pull Image from OpenShift Container Repository
         env:
-          IMAGE: image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
         run: docker pull ${IMAGE}
 
-      - name: Setup and Build
+      - name: Build Image using S2I
         id: build_image
         uses: redhat-actions/s2i-build@v2
         with:
             path_context: ./app
-            builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom"
+            builder_image:  ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
             image: ${{ env.imagename}}
-            tag: ${{ env.tag }}
+            tags: ${{ env.tag }}
             env_vars: |
               DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
               DOTNET_CONFIGURATION=Release
@@ -74,6 +74,11 @@ jobs:
               WORKDIR=/opt/app-root/src
               DOTNET_INCREMENTAL=true
               DOTNET_RESTORE_CONFIGFILE=./NuGet.config
-              NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
-              NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
-              NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
+              NEXUS_REPO_USER=${{ secrets.NEXUS_REPO_USER }}
+              NEXUS_REPO_PASSWORD=${{ secrets.NEXUS_REPO_PASSWORD }}
+              NEXUS_REPO_URL=${{secrets.NEXUS_URL}}
+      
+      - name: Push Image to Openshift ImageStream & Deploy to Dev
+        env:
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.imagename}}:${{ env.tag }}
+        run: docker push ${IMAGE}
