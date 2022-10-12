@@ -38,9 +38,9 @@ jobs:
         env:
           appname: ${{ env.app }}
         run: >-
-          echo "::set-output name=PATH::$(
-            jq .ProjectMapping.\"${appname}\" ./projectpathmapping.json
-          )"
+          echo ::set-output name=PATH::$(
+            jq -r .ProjectMapping.\"${appname}\" ./projectpathmapping.json
+          )
 
       - name: print env variables
         env:
@@ -73,7 +73,7 @@ jobs:
             image: ${{ env.imagename}}
             tags: ${{ env.tag }}
             env_vars: |
-              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj
+              DOTNET_STARTUP_PROJECT=${{ steps.fetch_projectpath.outputs.PATH }}
               DOTNET_CONFIGURATION=Release
               DOTNET_PACK=true
               WORKDIR=/opt/app-root/src
