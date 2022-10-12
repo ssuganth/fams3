@@ -1,4 +1,4 @@
-name: BuildPushSearchAPIToDEV
+name: JsonTest
 on:
   workflow_dispatch:
     inputs:
