@@ -52,7 +52,7 @@ jobs:
         with:
           registry: image-registry.apps.silver.devops.gov.bc.ca
           username: ssuganth77
-          password: sha256~0Js0_YiJL9LQquUB_NZ2Jk4qprRv5GbG2DtOhsNjdMY
+          password: sha256~RqecbRJ97AmtKenINr-1cg0gDDFVrUFsyWNTXq7rFg4
       
       - name: Pull Image from OpenShift Container Repository
         env:
