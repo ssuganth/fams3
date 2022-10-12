@@ -4,7 +4,7 @@ on:
     inputs:
         app:
           type: choice
-          description: Select a component to deploy
+          description: Select a component Image to deploy
           options:
           - -Select-
           - search-api
