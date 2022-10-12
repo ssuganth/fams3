@@ -1,4 +1,4 @@
-name: BuildPushSearchAPIToDEV
+name: Main - Build Image and Push to Openshift Registry for Dev Deployment
 on:
   workflow_dispatch:
     inputs:
