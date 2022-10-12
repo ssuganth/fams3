@@ -1,10 +1,6 @@
 {
   "ProjectMapping": {
-    "ACTIVATE_MAIL": "1",
-    "CRYPT": 1,
-    "EMAIL": "christian@mydomain.com",
-    "PORT": "587",
-    "SMTPPASS": "Eins, zwei, Polizei",
-    "SMTPSERVER": "smtp.mailserver.com"
+    "search-api": "SearchApi/SearchApi.Web/SearchApi.Web.csproj",
+    "request-api": "SearchApi/SearchRequest.Adaptor/SearchRequest.Adaptor.csproj"
   }
 }
