@@ -25,7 +25,7 @@ jobs:
       
       - name: Fetch Project Path
         id: fetch_projectpath
-        with:
+        env:
           APP: ${{ env.app }}
         run: >-
           echo "::set-output name=PATH::$(
@@ -33,7 +33,7 @@ jobs:
           )"
       
       - name: print env variables
-        with:
+        env:
           PROJECT_PATH: "${{ steps.fetch_projectpath.outputs.PATH }}"
         run: |
           echo "Release Environment: Dev"
