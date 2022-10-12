@@ -79,5 +79,5 @@ jobs:
         env:
           IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.imagename}}:${{ env.tag }}
         run: |
-          docker tag ${{ env.imagename}} {IMAGE} \
+          docker tag ${{ env.imagename}} ${IMAGE} \
           docker push ${IMAGE}
