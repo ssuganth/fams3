@@ -16,9 +16,11 @@ on:
         subdir:
             description: 'Sub Direcctory for Partial/context aware Build (like ./app/SearchApi)'     
             required: true
+            default: './app'
         imagename:
             description: 'Imagename (like search-api)'     
             required: true
+            default: 'search-api-expt'
             # https://stackoverflow.com/a/69920265
         tag:
             description: 'tag (like dev)'     
@@ -27,6 +29,7 @@ on:
         startup_project:
             description: 'Project for MSBuild like app/SearchApi/SearchApi.Web/SearchApi.Web.csproj'     
             required: true
+            default: 'SearchApi/SearchApi.Web/SearchApi.Web.csproj'
       
 jobs:
   build-push-image-searchapi:
@@ -49,6 +52,19 @@ jobs:
           echo "Release Environment: ${{ env.env }}"
           echo "Release App: ${{ env.app }}"
           echo "Release Subdir: ${{ env.subdir }}"
+
+      - name: Login to OpenShift Container Repository
+        uses: docker/login-action@v1
+        with:
+          registry: image-registry.apps.silver.devops.gov.bc.ca
+          username: ssuganth77
+          password: sha256~0Js0_YiJL9LQquUB_NZ2Jk4qprRv5GbG2DtOhsNjdMY
+      
+      - name: Pull Image from OpenShift Container Repository
+        env:.
+          IMAGE: image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
+        run: docker pull ${IMAGE}
+
       - name: Setup and Build
         id: build_image
         uses: redhat-actions/s2i-build@v2
