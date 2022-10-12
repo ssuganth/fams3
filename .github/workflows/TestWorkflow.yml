@@ -73,7 +73,7 @@ jobs:
             image: ${{ env.imagename}}
             tags: ${{ env.tag }}
             env_vars: |
-              DOTNET_STARTUP_PROJECT=${{ steps.fetch_projectpath.outputs.PATH }}
+              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj
               DOTNET_CONFIGURATION=Release
               DOTNET_PACK=true
               WORKDIR=/opt/app-root/src
