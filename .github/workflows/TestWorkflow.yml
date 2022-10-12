@@ -73,7 +73,7 @@ jobs:
               DOTNET_RESTORE_CONFIGFILE=./NuGet.config
               NEXUS_REPO_USER=${{ secrets.NEXUS_REPO_USER }}
               NEXUS_REPO_PASSWORD=${{ secrets.NEXUS_REPO_PASSWORD }}
-              NEXUS_REPO_URL=${{secrets.NEXUS_URL}}
+              NEXUS_REPO_URL=${{ secrets.NEXUS_URL }}
       
       - name: Push Image to Openshift ImageStream & Deploy to Dev
         env:
