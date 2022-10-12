@@ -67,15 +67,13 @@ jobs:
       - name: Build Image using S2I
         id: build_image
         uses: redhat-actions/s2i-build@v2
-        env:
-          PROJECT_PATH: ${{ steps.fetch_projectpath.outputs.PATH }}
         with:
             path_context: ./app
             builder_image:  ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/dotnet31-rhel7:sdk-custom
             image: ${{ env.imagename}}
             tags: ${{ env.tag }}
             env_vars: |
-              DOTNET_STARTUP_PROJECT="${PROJECT_PATH}"
+              DOTNET_STARTUP_PROJECT=${{ steps.fetch_projectpath.outputs.PATH }}
               DOTNET_CONFIGURATION=Release
               DOTNET_PACK=true
               WORKDIR=/opt/app-root/src
