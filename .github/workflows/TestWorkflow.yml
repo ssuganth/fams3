@@ -79,7 +79,6 @@ jobs:
               WORKDIR=/opt/app-root/src
               DOTNET_INCREMENTAL=true
               DOTNET_RESTORE_CONFIGFILE=./NuGet.config
-	            #NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
-	            #NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
+	            NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
+	            NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
               NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
-              NEXUS_REPO_URI=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
