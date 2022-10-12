@@ -61,7 +61,7 @@ jobs:
           password: sha256~0Js0_YiJL9LQquUB_NZ2Jk4qprRv5GbG2DtOhsNjdMY
       
       - name: Pull Image from OpenShift Container Repository
-        env:.
+        env:
           IMAGE: image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
         run: docker pull ${IMAGE}
 
