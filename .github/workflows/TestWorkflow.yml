@@ -45,34 +45,21 @@ jobs:
         run: |
           echo "Release Environment: ${{ env.env }}"
           echo "Release App: ${{ env.app }}"
-
-      - name: Login to OpenShift Container Repository
-        uses: docker/login-action@v1
-        with:
-          registry: image-registry.apps.silver.devops.gov.bc.ca
-          username: ssuganth77
-          password: sha256~0Js0_YiJL9LQquUB_NZ2Jk4qprRv5GbG2DtOhsNjdMY
-      
-      - name: Pull Image from OpenShift Container Repository
-        env:
-          IMAGE: image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
-        run: docker pull ${IMAGE}
-
       - name: Setup and Build
         id: build_image
         uses: redhat-actions/s2i-build@v2
         with:
-          path_context: ./app
-          builder_image:  image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom
-          image: ${{ env.imagename}}
-          tags: ${{ env.tag }}
-          env_vars:
-            DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
-            DOTNET_CONFIGURATION=Release
-            DOTNET_PACK=true
-            WORKDIR=/opt/app-root/src
-            DOTNET_INCREMENTAL=true
-            DOTNET_RESTORE_CONFIGFILE=./NuGet.config
-	          NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
-	          NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
-            NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
+            path_context: ./app
+            builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom"
+            image: ${{ env.imagename}}
+            tag: ${{ env.tag }}
+            env_vars: |
+              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
+              DOTNET_CONFIGURATION=Release
+              DOTNET_PACK=true
+              WORKDIR=/opt/app-root/src
+              DOTNET_INCREMENTAL=true
+              DOTNET_RESTORE_CONFIGFILE=./NuGet.config
+              NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
+              NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
+              NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
