@@ -18,7 +18,7 @@ on:
             required: true
             default: 'exptag'
         startup_project:
-            description: 'Project for Dotnet Core MSBuild ''   
+            description: 'Project for Dotnet Core MSBuild '   
             required: true
             default: 'SearchApi/SearchApi.Web/SearchApi.Web.csproj'
       
