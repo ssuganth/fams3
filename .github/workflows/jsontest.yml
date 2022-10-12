@@ -29,7 +29,7 @@ jobs:
           APP: ${{ env.app }}
         run: >-
           echo "::set-output name=PATH::$(
-            jq '.ProjectMapping.${APP}' ./test.json
+            jq \".ProjectMapping.${APP}\" ./test.json
           )"
       
       - name: print env variables
