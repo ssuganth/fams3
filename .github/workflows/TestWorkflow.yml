@@ -77,7 +77,8 @@ jobs:
       
       - name: Push Image to Openshift ImageStream & Deploy to Dev
         env:
-          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.imagename}}:${{ env.tag }}
+          SOURCE_IMAGE: ${{ env.imagename}}:${{ env.tag }}
+          TARGET_IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{ env.imagename}}:${{ env.tag }}
         run: |
-          docker tag ${{ env.imagename}} ${IMAGE}
-          docker push ${IMAGE}
+          docker tag ${SOURCE_IMAGE} ${TARGET_IMAGE}
+          docker push ${TARGET_IMAGE}
