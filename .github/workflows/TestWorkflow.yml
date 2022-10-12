@@ -17,7 +17,6 @@ on:
             description: 'Imagename (like search-api)'     
             required: true
             default: 'search-api-expt'
-            # https://stackoverflow.com/a/69920265
         tag:
             description: 'tag (like dev)'     
             required: true
@@ -41,7 +40,7 @@ jobs:
       - name: Checkoutcode
         uses: actions/checkout@v2
         with:
-          path: .  #"https://github.com/NovaVic/fams3"
+          path: .
       - name: print env variables
         run: |
           echo "Release Environment: ${{ env.env }}"
@@ -63,22 +62,17 @@ jobs:
         id: build_image
         uses: redhat-actions/s2i-build@v2
         with:
-            path_context: ./app
-            # Base image for a custom .NET project
-
-            #${{ env.startup_project}}
-            builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom" #'dotnet31-rhel7:sdk-custom' #'image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom' #'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
-            
-            image: ${{ env.imagename}}
-            tags: ${{ env.tag }}
-            # removed variable substitution for debugging
-            env_vars: |
-              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
-              DOTNET_CONFIGURATION=Release
-              DOTNET_PACK=true
-              WORKDIR=/opt/app-root/src
-              DOTNET_INCREMENTAL=true
-              DOTNET_RESTORE_CONFIGFILE=./NuGet.config
-	            NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
-	            NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
-              NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
+          path_context: ./app
+          builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom"
+          image: ${{ env.imagename}}
+          tags: ${{ env.tag }}
+          env_vars: |
+            DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
+            DOTNET_CONFIGURATION=Release
+            DOTNET_PACK=true
+            WORKDIR=/opt/app-root/src
+            DOTNET_INCREMENTAL=true
+            DOTNET_RESTORE_CONFIGFILE=./NuGet.config
+	          NEXUS_REPO_USER=${{ secrets.nexus_repo_user }}
+	          NEXUS_REPO_PASSWORD=${{ secrets.nexus_repo_password }}
+            NEXUS_REPO_URL=http://nexus-dfb30e-tools.apps.silver.devops.gov.bc.ca
