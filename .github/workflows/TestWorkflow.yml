@@ -1,0 +1,71 @@
+name: BuildPushSearchAPIToDEV
+on:
+  workflow_dispatch:
+    inputs:
+        app:
+          type: choice
+          description: Select a component to deploy
+          options:
+          - -Select-
+          - search-api
+          required: true
+        env:
+            description: 'Image Target Env'     
+            required: true
+            default: 'exp'
+        subdir:
+            description: 'Sub Direcctory for Partial/context aware Build (like ./app/SearchApi)'     
+            required: true
+        imagename:
+            description: 'Imagename (like search-api)'     
+            required: true
+            # https://stackoverflow.com/a/69920265
+        tag:
+            description: 'tag (like dev)'     
+            required: true
+            default: 'exptag'
+        startup_project:
+            description: 'Project for MSBuild like app/SearchApi/SearchApi.Web/SearchApi.Web.csproj'     
+            required: true
+      
+jobs:
+  build-push-image-searchapi:
+    name: build-push-image-searchapi
+    runs-on: ubuntu-latest
+    env: 
+      env: ${{github.event.inputs.env}}
+      subdir: ${{github.event.inputs.subdir}}
+      app: ${{github.event.inputs.app}}
+      imagename: ${{github.event.inputs.imagename}}
+      tag: ${{github.event.inputs.tag}}
+      startup_project: ${{github.event.inputs.startup_project}}
+    steps:
+      - name: Checkoutcode
+        uses: actions/checkout@v2
+        with:
+          path: .  #"https://github.com/NovaVic/fams3"
+      - name: print env variables
+        run: |
+          echo "Release Environment: ${{ env.env }}"
+          echo "Release App: ${{ env.app }}"
+          echo "Release Subdir: ${{ env.subdir }}"
+      - name: Setup and Build
+        id: build_image
+        uses: redhat-actions/s2i-build@v2
+        with:
+            path_context: ./app
+            # Base image for a custom .NET project
+
+            #${{ env.startup_project}}
+            builder_image:  "image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom" #'dotnet31-rhel7:sdk-custom' #'image-registry.apps.silver.devops.gov.bc.ca/dfb30e-tools/dotnet31-rhel7:sdk-custom' #'registry.access.redhat.com/openjdk/openjdk-11-rhel7'
+            
+            image: ${{ env.imagename}}
+            tags: ${{ env.tag }}
+            # removed variable substitution for debugging
+            env_vars: |
+              DOTNET_STARTUP_PROJECT=SearchApi/SearchApi.Web/SearchApi.Web.csproj    
+              DOTNET_CONFIGURATION=Release
+              DOTNET_PACK=true
+              WORKDIR=/opt/app-root/src
+              DOTNET_INCREMENTAL=true
+              DOTNET_RESTORE_CONFIGFILE=./NuGet.config
