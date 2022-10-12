@@ -15,7 +15,7 @@ on:
             required: true
             default: 'exptag'
         env:
-            description: 'Image Target Env'  
+            description: 'Target Env'  
             required: true
             default: 'dev'
       
