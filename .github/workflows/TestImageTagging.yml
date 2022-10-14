@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v2
         
         # Get Git latest short Sha# from the release branch used. This Sha# will be used in image tagging as well as DC Pod labelling.
-      - name: Get git commit short sha
+      - name: Get latest Git commit short SHA
         id: sha
         run: |
           shortSha=$(echo $(git rev-parse --short HEAD) | cut -c1-7)
@@ -56,7 +56,7 @@ jobs:
         
         # Re-Tag latest dev (source) image to other env to trigger openshift deployment via DeploymentConfig
         # It also creates a tag with release version number to use it in case of rollback.
-      - name: Retag image to release env and version
+      - name: Retag image to Release Env and backup using Git SHA
         env:
           appName: ${{ github.event.inputs.app }}
           imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
@@ -67,3 +67,31 @@ jobs:
         run: |
           oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageSourceEnv} ${appName}:${imageTargetEnv}
           oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageTargetEnv} ${appName}:${gitSha}
+      
+        #Login to Openshift using OC SA and Token of respective env. for Pod labelling
+      - name: Authenticate OC Env Specific SA
+        uses: redhat-actions/oc-login@v1
+        env:
+          OPENSHIFT_NAMESPACE: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+          OPENSHIFT_USER: ${{secrets.OPENSHIFT_SA_Env_DEPLOYER_NAME}}
+        with:
+          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL}}
+          openshift_token: ${{secrets.OPENSHIFT_SA_ENV_DEPLOYER_TOKEN}}
+          namespace: ${OPENSHIFT_NAMESPACE}
+        
+        # Labels the deployment config of the application with release version number to spin up the pods labelled in same version
+      - name: Labelling DC to Git SHA
+        env:
+          appName: ${{ github.event.inputs.app }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+          gitSha: ${{ env.gitsha }}
+        run: |
+          oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.gitsha }}"}}}}}'
+      
+        # Wait to DC rollout to get completed
+      - name: Wait for DC rollout
+        env:
+          appName: ${{ github.event.inputs.app }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+        run: |
+          oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch
