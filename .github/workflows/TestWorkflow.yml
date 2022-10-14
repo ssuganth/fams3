@@ -2,23 +2,23 @@ name: Main - Build Image and Push to Openshift Registry for Dev Deployment
 on:
   workflow_dispatch:
     inputs:
-        app:
-          type: choice
-          description: Select a component Image to deploy
-          options:
-          - -Select-
-          - search-api
-          - request-api
-          - dynadapter
-          required: true
-        tag:
-            description: 'Target image tag to build and deploy'     
-            required: true
-            default: 'exptag'
-        env:
-            description: 'Target Env'  
-            required: true
-            default: 'dev'
+      app:
+        type: choice
+        description: Select a component Image to deploy
+        options:
+        - -Select-
+        - search-api
+        - request-api
+        - dynadapter
+        required: true
+      tag:
+        description: 'Target image tag to build and deploy'     
+        required: true
+        default: 'exptag'
+      env:
+        description: 'Target Env'  
+        required: true
+        default: 'dev'
       
 jobs:
   build-push-image:
